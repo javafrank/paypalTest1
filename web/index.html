@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PayPal example</title>
+    <script src="jquery-3.1.0.min.js"></script>
+    <script language="javascript">
+        $(document).ready(function(){
+            var transactionDetail = {
+                "intent": "sale",
+                "redirect_urls":
+                {
+                    "return_url": "http://google.com",
+                    "cancel_url": "http://gmail.com"
+                },
+                "payer":
+                {
+                    "payment_method": "paypal"
+                },
+                "transactions": [
+                    {
+                        "amount":
+                        {
+                            "total": "0.50",
+                            "currency": "USD"
+                        },
+                        "description": "Descripcion del pago de ejemplo."
+                    }]
+            };
+            $("#payButton").click(function() {
+                $.ajax({
+//                    contentType: "application/json",
+                    url: "https://api.sandbox.paypal.com/v1/oauth2/token",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Accept-Language': 'en_US'
+                    },
+                    data: "grant_type=client_credentials"
+                }).done(function(data) {
+                    console.log(data);
+                    alert("done");
+                }).fail(function(data) {
+                    alert("fail");
+                }).always(function(data) {
+                    alert("always");
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>PayPal payment examples</h1>
+    <br/>
+    <button id="payButton">Pay</button>
+</body>
+</html>
