@@ -6,43 +6,58 @@
     <script src="jquery-3.1.0.min.js"></script>
     <script language="javascript">
         $(document).ready(function(){
-            var transactionDetail = {
-                "intent": "sale",
-                "redirect_urls":
-                {
-                    "return_url": "http://google.com",
-                    "cancel_url": "http://gmail.com"
-                },
-                "payer":
-                {
-                    "payment_method": "paypal"
-                },
-                "transactions": [
-                    {
-                        "amount":
-                        {
-                            "total": "0.50",
-                            "currency": "USD"
-                        },
-                        "description": "Descripcion del pago de ejemplo."
-                    }]
-            };
+            var username = "AXaenkvcpChHuJgoGYSjofG6K4DJ7U2X9Pxe6vYHE_c-ENfXJ2quB81bSPo81NOfYztb25YwS7pg0idG";
+            var password = "EFwH_EbEX5L8_LU2OXaxLMeqVa0G-vdyKd_-a6HfGQ3DCj73eiKxQg1cmtQNiBxdRb7W0jV_QjkrKf_n";
             $("#payButton").click(function() {
                 $.ajax({
-//                    contentType: "application/json",
-                    url: "https://api.sandbox.paypal.com/v1/oauth2/token",
                     headers: {
-                        'Accept': 'application/json',
-                        'Accept-Language': 'en_US'
+                        "Accept": "application/json",
+                        "Accept-Language": "en_US",
+                        "Authorization": "Basic "+btoa(username+":"+password)
                     },
-                    data: "grant_type=client_credentials"
-                }).done(function(data) {
-                    console.log(data);
-                    alert("done");
-                }).fail(function(data) {
-                    alert("fail");
-                }).always(function(data) {
-                    alert("always");
+                    url: "https://api.sandbox.paypal.com/v1/oauth2/token",
+                    type: "POST",
+                    data: "grant_type=client_credentials",
+                    complete: function (data) {
+                        console.log(data.responseJSON);
+                        alert("done token");
+
+                        var tokenType = data.responseJSON.token_type;
+                        var token = data.responseJSON.access_token;
+                        var transactionDetail = {
+                            "intent": "sale",
+                            "redirect_urls": {
+                                "return_url": "http://google.com",
+                                "cancel_url": "http://gmail.com"
+                            },
+                            "payer": {
+                                "payment_method": "paypal"
+                            },
+                            "transactions": [{
+                                "amount": {
+                                    "total": "0.50",
+                                    "currency": "USD"
+                                },
+                                "description": "Descripcion del pago de ejemplo."
+                            }]
+                        };
+
+                        $.ajax({
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": tokenType+" "+token
+                            },
+                            url: "https://api.sandbox.paypal.com/v1/payments/payment",
+                            type: "POST",
+                            data: '{"intent": "sale", "redirect_urls": {"return_url": "http://google.com", "cancel_url": "http://gmail.com"}, "payer": {"payment_method": "paypal"}, "transactions": [{"amount": {"total": "7.47", "currency": "USD"}, "description": "This is the payment transaction description."}] }',
+                            complete: function (data) {
+                                console.log(data.responseJSON);
+                                alert("done payment created");
+
+                                window.open(data.responseJSON.links[1].href);
+                            }
+                        });
+                    }
                 });
             });
         });
