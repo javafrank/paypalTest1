@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>PayPal example</title>
     <script src="jquery-3.1.0.min.js"></script>
+    <script src="jquery.cookie.js"></script>
     <script language="javascript">
         $(document).ready(function(){
             var username = "AXaenkvcpChHuJgoGYSjofG6K4DJ7U2X9Pxe6vYHE_c-ENfXJ2quB81bSPo81NOfYztb25YwS7pg0idG";
@@ -24,23 +25,7 @@
 
                         var tokenType = data.responseJSON.token_type;
                         var token = data.responseJSON.access_token;
-                        var transactionDetail = {
-                            "intent": "sale",
-                            "redirect_urls": {
-                                "return_url": "http://google.com",
-                                "cancel_url": "http://gmail.com"
-                            },
-                            "payer": {
-                                "payment_method": "paypal"
-                            },
-                            "transactions": [{
-                                "amount": {
-                                    "total": "0.50",
-                                    "currency": "USD"
-                                },
-                                "description": "Descripcion del pago de ejemplo."
-                            }]
-                        };
+                        $.cookie("token", token);
 
                         $.ajax({
                             headers: {
@@ -49,7 +34,7 @@
                             },
                             url: "https://api.sandbox.paypal.com/v1/payments/payment",
                             type: "POST",
-                            data: '{"intent": "sale", "redirect_urls": {"return_url": "http://google.com", "cancel_url": "http://gmail.com"}, "payer": {"payment_method": "paypal"}, "transactions": [{"amount": {"total": "7.47", "currency": "USD"}, "description": "This is the payment transaction description."}] }',
+                            data: '{"intent": "sale", "redirect_urls": {"return_url": "http://localhost:8080/approval.jsp", "cancel_url": "http://localhost:8080/cancel.jsp"}, "payer": {"payment_method": "paypal"}, "transactions": [{"amount": {"total": "7.47", "currency": "USD"}, "description": "This is the payment transaction description."}] }',
                             complete: function (data) {
                                 console.log(data.responseJSON);
                                 alert("done payment created");
